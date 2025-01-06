@@ -5,7 +5,9 @@
   justify-content: center;
   align-content: center;
 }
-
+.ul{
+  list-style: none;
+}
 .container {
   display: flex;
   flex-direction: column;

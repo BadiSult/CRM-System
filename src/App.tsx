@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 // Интерфейсы
 interface TodoRequest {
@@ -27,92 +27,118 @@ interface MetaResponse<T, N> {
   };
 }
 
-// Приложение
+ 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [info, setInfo] = useState<TodoInfo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+ 
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [info, setInfo]  = useState<TodoInfo | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string|null>(null) 
+  const [newTask, setNewTask] = useState<string>('')
 
-  // Функция загрузки задач с сервера
-  const fetchTodos = async () => {
-    setLoading(true);
-    setError(null);
+   
 
-    try {
-      const response = await fetch('https://easydev.club/api/v1/todos');
-      const result: MetaResponse<Todo, TodoInfo> = await response.json();
-      setTodos(result.data);
-      setInfo(result.info || null);
-    } catch (err) {
-      setError('Ошибка загрузки данных');
-    } finally {
-      setLoading(false);
+  const fetchTodos = async() =>{
+    setLoading(true)
+    setError(null)
+
+    try{
+      const response = await fetch('https://easydev.club/api/v1/todos')
+      const result: MetaResponse<Todo, TodoInfo> = await response.json()
+      setTodos(result.data)
+      setInfo(result.info || null)
+      setLoading(false)
+       
+
+
+    }catch(err){
+      setError('Error data')
     }
-  };
+  }
 
-  // Функция изменения статуса задачи
-  const toggleTodoStatus = async (id: Todo['id'], isDone: boolean) => {
-    try {
-      const request: TodoRequest = { isDone };
-      await fetch(`https://easydev.club/api/v1/todos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request),
-      });
-
-      // Обновляем локальное состояние после успешного запроса
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) =>
-          todo.id === id ? { ...todo, isDone } : todo
-        )
-      );
-    } catch {
-      setError('Ошибка изменения статуса задачи');
+  const toggleTodoStatus = async (id:Todo['id'], isDone: boolean) =>{
+    const request: TodoRequest ={isDone};
+    try{
+    await fetch( `https://easydev.club/api/v1/todos/${id}`, {
+      method: 'PUT',
+      headers:{'Content-Type': 'application/json'},
+      body: JSON.stringify(request)
+    }) 
+    setTodos((prevTodos)=>
+    prevTodos.map(todos=>
+      todos.id === id ? {...todos, isDone} : todos
+    ))
+    }catch{
+      setError('Error status')
     }
-  };
+  }
 
-  // Загрузка данных при монтировании компонента
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+   
 
-  // Отображение задач
+const addTask = async()=>{
+  if (!newTask.trim()) return
+  const request: TodoRequest = {title:newTask}
+  try{
+    const response = await fetch('https://easydev.club/api/v1/todos',{
+      method:'POST',
+      headers:{'Content-Type' : 'application/json'},
+      body: JSON.stringify(request)
+    })
+    const newTodo: Todo = await response.json()
+    console.log(newTodo);
+    
+    setTodos(prevTodos => [...prevTodos, newTodo])
+    setNewTask('')
+  }catch{
+    setError('Error new data')
+  }
+}
+
+
+
+
+  useEffect(()=>{
+    fetchTodos()
+  },[info])
+
+  
+
+   
+  
   return (
-    <div>
-      <h1>Список задач</h1>
-
-      {/* Загрузка и ошибки */}
-      {loading && <p>Загрузка...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {/* Статистика */}
+     <div>
+      <h1>Список Задач</h1>
+       <div>
+        <input 
+        type="text"
+        placeholder='Add...' 
+        value={newTask}
+        onChange={(e)=>setNewTask(e.target.value)}
+        />
+        <button onClick={addTask}>ADD</button>
+       </div>
+       
+      {error && <p style={{color:'red'}}>{error}</p>}
       {info && (
-        <div>
-          <p>Всего задач: {info.all}</p>
-          <p>Выполнено: {info.completed}</p>
-          <p>В работе: {info.inWork}</p>
-        </div>
+      <p>Всего: {info.all} Выполнено: {info.completed} В работе: {info.inWork}</p> 
       )}
+      <ul  style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      {todos.map(todo=>
+        <li key={todo.id}>
+          <span
+          style={{textDecoration: todo.isDone ? 'line-through' : 'none'
 
-      {/* Список задач */}
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>
-            <span
-              style={{
-                textDecoration: todo.isDone ? 'line-through' : 'none',
-              }}
-            >
-              {todo.title} ({new Date(todo.created).toLocaleDateString()})
-            </span>
-            <button onClick={() => toggleTodoStatus(todo.id, !todo.isDone)}>
-              {todo.isDone ? 'Отменить' : 'Выполнено'}
-            </button>
-          </li>
-        ))}
+          }}
+          >
+             <input type="checkbox" checked={todo.isDone} onClick={()=>toggleTodoStatus(todo.id, !todo.isDone)}/>
+            {todo.title} ( {new Date(todo.created).toLocaleDateString()})
+          </span>
+
+        </li>
+      )}
       </ul>
-    </div>
+      
+     </div>
   );
 };
 
