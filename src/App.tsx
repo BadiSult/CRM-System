@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-
+import "@fortawesome/fontawesome-free/css/all.min.css"
 // Интерфейсы
 interface TodoRequest {
   title?: string;
@@ -95,6 +95,21 @@ const addTask = async()=>{
 }
 
 
+  const deleteTask = async(id:Todo['id'])=>{
+       
+    try{
+      const response = await fetch(`https://easydev.club/api/v1/todos/${id}`,{
+        method:'DELETE',
+        headers:{'Content-Type': 'application/json'},
+         
+      })
+      
+      setTodos((prev) => prev.filter((todo) => todo.id !== id))
+    } catch{
+      setError('error delete')
+    }
+  }
+
 
 
   useEffect(()=>{
@@ -132,7 +147,13 @@ const addTask = async()=>{
           >
              <input type="checkbox" checked={todo.isDone} onClick={()=>toggleTodoStatus(todo.id, !todo.isDone)}/>
             {todo.title} ( {new Date(todo.created).toLocaleDateString()})
+             
           </span>
+          <i
+            className="fas fa-trash"
+            style={{  cursor: 'pointer', marginLeft: '10px' }}  
+            onClick={()=>deleteTask(todo.id)}   
+        ></i>
 
         </li>
       )}
@@ -142,11 +163,8 @@ const addTask = async()=>{
   );
 };
 
+
  
-
-
-
-
 
 
 
