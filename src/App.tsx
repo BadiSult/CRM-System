@@ -35,7 +35,8 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string|null>(null) 
   const [newTask, setNewTask] = useState<string>('')
-
+  const [editNewId, setEditNewId] = useState<number | null>(null)
+  const [editNewTitle, setEditNewTitle] = useState<string>('')
    
 
   const fetchTodos = async() =>{
@@ -110,7 +111,38 @@ const addTask = async()=>{
     }
   }
 
+  const startSave = async(id:Todo['id'], current:string )=>{ 
+    setEditNewId(id)
+    setEditNewTitle(current)
+  }
+  
+  const saveTask = async()=>{
+    if(!editNewTitle.trim()) return
+    const request: TodoRequest = {title:editNewTitle} 
+    try{
+      const response = await fetch(`https://easydev.club/api/v1/todos/${editNewId}`,{
+        method: 'PUT',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(request)
+      })
+       
+      setTodos(prev => prev.map(todo=> todo.id === editNewId ? {...todo, title:editNewTitle } : todo))
 
+      setEditNewId(null)
+      setEditNewTitle('')
+    }catch{
+      setError('error save')
+    }
+  }
+
+  const cancelEdit = async() =>{
+    setEditNewId(null)
+    setEditNewTitle('')
+  }
+  
+
+
+   
 
   useEffect(()=>{
     fetchTodos()
@@ -140,15 +172,32 @@ const addTask = async()=>{
       <ul  style={{ listStyle: 'none', padding: 0, margin: 0 }}>
       {todos.map(todo=>
         <li key={todo.id}>
-          <span
-          style={{textDecoration: todo.isDone ? 'line-through' : 'none'
-
-          }}
-          >
-             <input type="checkbox" checked={todo.isDone} onClick={()=>toggleTodoStatus(todo.id, !todo.isDone)}/>
-            {todo.title} ( {new Date(todo.created).toLocaleDateString()})
-             
-          </span>
+          {todo.id === editNewId ? (
+            <div>
+            <input type="text"
+             value={editNewTitle}
+             onChange={e=>setEditNewTitle(e.target.value)}
+             />
+             <button onClick={saveTask}>save</button>
+             <button onClick={cancelEdit}>cancel</button>
+             </div>   
+          ) : (
+            <span
+            style={{textDecoration: todo.isDone ? 'line-through' : 'none'
+  
+            }}
+            >
+               <input type="checkbox" checked={todo.isDone} onClick={()=>toggleTodoStatus(todo.id, !todo.isDone)}/>
+              {todo.title} ( {new Date(todo.created).toLocaleDateString()})
+               
+            </span>
+          )}
+            
+          <i
+            className="fas fa-edit"
+            style={{ cursor: 'pointer', marginLeft: '10px' }}
+            onClick={()=>startSave(todo.id, todo.title)}
+          ></i>
           <i
             className="fas fa-trash"
             style={{  cursor: 'pointer', marginLeft: '10px' }}  
