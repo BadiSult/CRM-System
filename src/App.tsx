@@ -38,6 +38,8 @@ export const App: React.FC = () => {
   const [editNewId, setEditNewId] = useState<number | null>(null)
   const [editNewTitle, setEditNewTitle] = useState<string>('')
   const [filter, setFilter] = useState<string>('all');
+  const [giveId, setGiveId] = useState<number>(0)
+  const [idStart, setIdStart] = useState<boolean>(false)
 
   const fetchTodos = async() =>{
     setLoading(true)
@@ -106,7 +108,7 @@ const addTask = async()=>{
     try{
       const response = await fetch(`https://easydev.club/api/v1/todos/${id}`,{
         method:'DELETE',
-        headers:{'Content-Type': 'application/json'},
+       
          
       })
       
@@ -145,7 +147,26 @@ const addTask = async()=>{
     setEditNewTitle('')
   }
   
+  const startGiveId = async()=>{
+    setIdStart(!idStart)
+  }
   
+  const giveTaskId = async(id:Todo['id']) =>{
+     try{
+      const response = await fetch(`https://easydev.club/api/v1/todos/${id}`,{
+        method: 'GET',
+      })
+      const result:Todo  = await response.json()
+      console.log('Task fetched:', result);
+      setTodos(prev => 
+        prev.map(todo=> todo.id === id ?   result : todo))
+      setError(null)
+      setGiveId(0)
+     }catch{
+      setError('error id')
+     }
+  }
+    
    
 
   useEffect(()=>{
@@ -185,14 +206,25 @@ const addTask = async()=>{
           marginRight: '10px',
           backgroundColor: filter === 'completed' ? 'lightblue' : 'white',
         }}> Выполнено:{info.completed}  </p>
-           <p  onClick={() => changeFilter('inwork')}
+           <p  onClick={() => changeFilter('inWork')}
            style={{
           marginRight: '10px',
-          backgroundColor: filter === 'inwork' ? 'lightblue' : 'white',
+          backgroundColor: filter === 'inWork' ? 'lightblue' : 'white',
         }}> В работе:{info.inWork}  </p>
         </div>
       
       )}
+      <div>
+        <button onClick={startGiveId}>id</button>
+        {idStart && <div>
+            <input type="text"
+              value={giveId}
+             onChange={e=> setGiveId(Number(e.target.value))}
+             />
+             <button onClick={() => giveTaskId(giveId) }>check</button>
+             
+             </div>  }
+      </div>
       <ul  style={{ listStyle: 'none', padding: 0, margin: 0 }}>
       {todos.map(todo=>
         <li key={todo.id}>
