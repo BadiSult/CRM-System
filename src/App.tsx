@@ -37,14 +37,14 @@ export const App: React.FC = () => {
   const [newTask, setNewTask] = useState<string>('')
   const [editNewId, setEditNewId] = useState<number | null>(null)
   const [editNewTitle, setEditNewTitle] = useState<string>('')
-   
+  const [filter, setFilter] = useState<string>('all');
 
   const fetchTodos = async() =>{
     setLoading(true)
     setError(null)
 
     try{
-      const response = await fetch('https://easydev.club/api/v1/todos')
+      const response = await fetch(`https://easydev.club/api/v1/todos?filter=${filter}`)
       const result: MetaResponse<Todo, TodoInfo> = await response.json()
       setTodos(result.data)
       setInfo(result.info || null)
@@ -56,6 +56,11 @@ export const App: React.FC = () => {
       setError('Error data')
     }
   }
+
+  const changeFilter = (newFilter: string) => {
+    setFilter(newFilter);
+  }
+   
 
   const toggleTodoStatus = async (id:Todo['id'], isDone: boolean) =>{
     const request: TodoRequest ={isDone};
@@ -120,7 +125,7 @@ const addTask = async()=>{
     if(!editNewTitle.trim()) return
     const request: TodoRequest = {title:editNewTitle} 
     try{
-      const response = await fetch(`https://easydev.club/api/v1/todos/${editNewId}`,{
+        await fetch(`https://easydev.club/api/v1/todos/${editNewId}`,{
         method: 'PUT',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify(request)
@@ -140,8 +145,7 @@ const addTask = async()=>{
     setEditNewTitle('')
   }
   
-
-
+  
    
 
   useEffect(()=>{
@@ -155,6 +159,7 @@ const addTask = async()=>{
   return (
      <div>
       <h1>Список Задач</h1>
+      
        <div>
         <input 
         type="text"
@@ -167,7 +172,26 @@ const addTask = async()=>{
        
       {error && <p style={{color:'red'}}>{error}</p>}
       {info && (
-      <p>Всего: {info.all} Выполнено: {info.completed} В работе: {info.inWork}</p> 
+        <div style={{display:'flex'}}>
+           <p  
+            onClick={() => changeFilter('all')}
+        style={{
+          marginRight: '10px',
+          backgroundColor: filter === 'all' ? 'lightblue' : 'white',
+        }}>Всего:{info.all}  </p> 
+           <p  
+           onClick={() => changeFilter('completed')}
+        style={{
+          marginRight: '10px',
+          backgroundColor: filter === 'completed' ? 'lightblue' : 'white',
+        }}> Выполнено:{info.completed}  </p>
+           <p  onClick={() => changeFilter('inwork')}
+           style={{
+          marginRight: '10px',
+          backgroundColor: filter === 'inwork' ? 'lightblue' : 'white',
+        }}> В работе:{info.inWork}  </p>
+        </div>
+      
       )}
       <ul  style={{ listStyle: 'none', padding: 0, margin: 0 }}>
       {todos.map(todo=>
@@ -214,12 +238,7 @@ const addTask = async()=>{
 
 
  
-
-
-
-
-
-
+ 
 
 
 
