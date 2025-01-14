@@ -41,6 +41,8 @@ export const App: React.FC = () => {
   const [giveId, setGiveId] = useState<number>(0)
   const [idStart, setIdStart] = useState<boolean>(false)
 
+   
+
   const fetchTodos = async() =>{
     setLoading(true)
     setError(null)
@@ -49,7 +51,11 @@ export const App: React.FC = () => {
       const response = await fetch(`https://easydev.club/api/v1/todos?filter=${filter}`)
       const result: MetaResponse<Todo, TodoInfo> = await response.json()
       setTodos(result.data)
-      setInfo(result.info || null)
+       
+      
+       setInfo(result.info || null)
+      
+      
       setLoading(false)
        
 
@@ -84,7 +90,11 @@ export const App: React.FC = () => {
    
 
 const addTask = async()=>{
-  if (!newTask.trim()) return
+  const trimTask = newTask.trim()
+  if(trimTask.length  < 2 || trimTask.length  > 64){
+    setError('error valid')
+    return
+  }
   const request: TodoRequest = {title:newTask}
   try{
     const response = await fetch('https://easydev.club/api/v1/todos',{
@@ -97,6 +107,7 @@ const addTask = async()=>{
     
     setTodos(prevTodos => [...prevTodos, newTodo])
     setNewTask('')
+    setError(null)
   }catch{
     setError('Error new data')
   }
@@ -124,7 +135,11 @@ const addTask = async()=>{
   }
   
   const saveTask = async()=>{
-    if(!editNewTitle.trim()) return
+    const trimTask = editNewTitle.trim()
+    if(trimTask.length  < 2 || trimTask.length  > 64){
+      setError('error valid')
+      return
+    }
     const request: TodoRequest = {title:editNewTitle} 
     try{
         await fetch(`https://easydev.club/api/v1/todos/${editNewId}`,{
@@ -137,6 +152,7 @@ const addTask = async()=>{
 
       setEditNewId(null)
       setEditNewTitle('')
+      setError(null)
     }catch{
       setError('error save')
     }
@@ -167,11 +183,12 @@ const addTask = async()=>{
      }
   }
     
+
    
 
   useEffect(()=>{
     fetchTodos()
-  },[info])
+  },[info ])
 
   
 
@@ -270,8 +287,6 @@ const addTask = async()=>{
 
 
  
- 
-
 
 
 
