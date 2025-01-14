@@ -27,7 +27,7 @@ interface MetaResponse<T, N> {
   };
 }
 
- 
+
 export const App: React.FC = () => {
  
   const [todos, setTodos] = useState<Todo[]>([])
@@ -43,7 +43,7 @@ export const App: React.FC = () => {
 
    
 
-  const fetchTodos = async() =>{
+  const fetchTodos = async( ) =>{
     setLoading(true)
     setError(null)
 
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
       setTodos(result.data)
        
       
-       setInfo(result.info || null)
+      setInfo(result.info || null)
       
       
       setLoading(false)
@@ -62,13 +62,21 @@ export const App: React.FC = () => {
 
     }catch(err){
       setError('Error data')
+      setLoading(false)
     }
   }
 
-  const changeFilter = (newFilter: string) => {
-    setFilter(newFilter);
+  const changeFilter =  (newFilter: string) => {
+     setFilter(newFilter);
+       
+      
   }
    
+
+  useEffect(()=>{
+    fetchTodos()
+  },[filter])
+
 
   const toggleTodoStatus = async (id:Todo['id'], isDone: boolean) =>{
     const request: TodoRequest ={isDone};
@@ -186,10 +194,8 @@ const addTask = async()=>{
 
    
 
-  useEffect(()=>{
-    fetchTodos()
-  },[info ])
-
+   
+   
   
 
    
