@@ -1,0 +1,60 @@
+.title{
+     display: flex;
+     background-color: rgb(201, 202, 202);
+     padding-top: 4%;
+    padding-left: 10px;
+     height: 50px;
+     width: 45%;
+     border-radius: 5px;
+     margin-bottom: 10px;
+     max-width: 500px;
+}
+
+ .div{
+      min-width: 55px;
+ }
+
+ .div1{
+     min-width: 200px;
+     display: flex;
+   
+ }
+
+ .p{
+
+ }
+
+ .input{
+      
+      margin-bottom: 10px;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background-color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+ }
+ .input:checked {
+     background-color: #644af7;  
+     
+   }
+   .input:checked::after {
+     content: '';  
+  display: block;
+  width: 3px;  
+  height: 6px;  
+  border: solid white; 
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);  
+  position: absolute;
+    
+  left: 5px;  
+  top: 2px;
+   }
+ 
+ .title1{
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+ }

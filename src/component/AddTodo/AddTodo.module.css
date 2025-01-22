@@ -1,0 +1,22 @@
+ 
+
+  .input {
+    background: transparent;
+    padding: 8px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+    
+  }
+
+  .button{
+    height: 35px;
+    width: 90px;
+    margin-left: 10px;
+    background-color: rgb(155, 155, 252);
+    border-radius: 10px;
+    border: none;
+    color: white;
+    
+  }
