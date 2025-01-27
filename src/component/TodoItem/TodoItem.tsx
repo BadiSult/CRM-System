@@ -12,13 +12,14 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
 
-  const toggleTodoStatus = async ( ) =>{
-
+  const handleToggleTodoStatus = async ( ) =>{
+     
     try{
+       const taskRequest:TodoRequest = {isDone: !todo.isDone}
       await fetch( `https://easydev.club/api/v1/todos/${todo.id}`, {
         method: 'PUT',
         headers:{'Content-Type': 'application/json'},
-        body: JSON.stringify({isDone: !todo.isDone} as TodoRequest)
+        body: JSON.stringify(taskRequest)
       });
       onUpdate();
     }catch{
@@ -26,22 +27,31 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
     }
   };
 
-  const deleteTask = async( )=>{
+  const handleDeleteTask = async( )=>{
 
     try{
-      const response = await fetch(`https://easydev.club/api/v1/todos/${todo.id}`,{
+        await fetch(`https://easydev.club/api/v1/todos/${todo.id}`,{
         method:'DELETE',
       });
 
       onUpdate();
     } catch{
-      onError('error delete');
+      alert('error delete');
     }
   };
 
 
+  const handleCanselEdit = async() =>{
+    setIsEditing(false)
+    setEditTitle(todo.title)
+  }
 
-  const saveTask = async()=>{
+  const handleStartEdit = async() =>{
+    setIsEditing(true)
+  }
+
+
+  const handleSaveTask = async()=>{
     const trimTask = editTitle.trim();
     if(trimTask.length  < 2 || trimTask.length  > 64){
       onError('error valid');
@@ -49,10 +59,11 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
     }
 
     try{
+      const trimTaskRequest:TodoRequest = {title: trimTask}
       await fetch(`https://easydev.club/api/v1/todos/${todo.id}`,{
         method: 'PUT',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({title: trimTask} as TodoRequest)
+        body: JSON.stringify(trimTaskRequest)
       });
 
       setIsEditing(false);
@@ -66,21 +77,21 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   return (
     <li>
       {isEditing ? (
-        <div>
+        <div className={styles.edit}>
           <input type="text"
             value={editTitle}
             onChange={(e)=> setEditTitle(e.target.value)}
           />
-          <button onClick={saveTask}>Save</button>
-          <button onClick={() => setIsEditing(false)}>Cancel</button>
+          <button onClick={handleSaveTask}>Save</button>
+          <button onClick={handleCanselEdit}>Cancel</button>
         </div>
       ) : (
-        <span   style={{ textDecoration: todo.isDone ? 'line-through' : 'none' }}>
+        <div   style={{ textDecoration: todo.isDone ? 'line-through' : 'none' }}>
 
           <div className={styles.title}>
             <div className={styles.div1}>
               <div>
-                <input className={styles.input}   type="checkbox" checked={todo.isDone} onChange={toggleTodoStatus} />
+                <input className={styles.input}   type="checkbox" checked={todo.isDone} onChange={handleToggleTodoStatus} />
               </div>
 
               <div className={styles.title1}>
@@ -90,13 +101,13 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
             </div>
 
             <div className={styles.div} >
-              <i style={{    }} className="fas fa-edit" onClick={() => setIsEditing(true)}></i>
-              <i  style={{marginLeft: '10px' }} className="fas fa-trash" onClick={deleteTask}></i>
+              <i style={{    }} className="fas fa-edit" onClick={handleStartEdit}></i>
+              <i  style={{marginLeft: '10px' }} className="fas fa-trash" onClick={handleDeleteTask}></i>
             </div>
 
           </div>
 
-        </span>
+        </div>
 
       )}
 

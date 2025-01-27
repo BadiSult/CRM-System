@@ -11,7 +11,7 @@ export const AddTodo:React.FC<AddTodoProps> = ({  onError, onAddSuccess }) => {
   const [newTask, setNewTask] = useState<string>('');
 
 
-  const addTask = async()=>{
+  const handleAddTask = async()=>{
     const trimTask = newTask.trim();
     if(trimTask.length  < 2 || trimTask.length  > 64){
       onError('error valid');
@@ -19,14 +19,15 @@ export const AddTodo:React.FC<AddTodoProps> = ({  onError, onAddSuccess }) => {
     }
 
     try{
+      const newTaskRequest:TodoRequest = {title:newTask}
       await fetch('https://easydev.club/api/v1/todos',{
         method:'POST',
         headers:{'Content-Type' : 'application/json'},
-        body: JSON.stringify({title:newTask} as TodoRequest)
+        body: JSON.stringify( newTaskRequest)
       });
 
 
-      onAddSuccess( );
+     await onAddSuccess( );
 
       setNewTask('');
 
@@ -37,7 +38,7 @@ export const AddTodo:React.FC<AddTodoProps> = ({  onError, onAddSuccess }) => {
 
 
   return (
-    <div  >
+    <form  >
       <input
         className={styles.input}
         type="text"
@@ -45,7 +46,7 @@ export const AddTodo:React.FC<AddTodoProps> = ({  onError, onAddSuccess }) => {
         value={newTask}
         onChange={(e) => setNewTask(e.target.value)}
       />
-      <button className={styles.button} onClick={addTask}>ADD</button>
-    </div>
+      <button className={styles.button} onClick={handleAddTask}>ADD</button>
+    </form>
   );
 };

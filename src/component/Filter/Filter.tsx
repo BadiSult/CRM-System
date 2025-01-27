@@ -3,28 +3,31 @@ import { TodoInfo } from '../types';
 import styles from '../Filter/Filter.module.css';
 interface FilterProps {
     info: TodoInfo
-    filter: string
-    onChangeFilter: (filter: string) => void
+    filter: 'all' | 'completed' | 'inWork'
+    onChangeFilter: (filter: 'all' | 'completed' | 'inWork') => void
 }
-
+const translatedTodoFilter = {
+  all : 'все',
+  inWork: 'В работе',
+  completed: 'выполнено'
+  
+  }
 
 export const Filter: React.FC<FilterProps> = ({info, filter, onChangeFilter}) =>(
   <div style={{display:'flex'}}>
-    {['all', 'completed', 'inWork'].map(f=>
+    {(['all', 'completed', 'inWork'] as const).map(filt=>
       <p className={styles.p}
-        key={f}
-        onClick={()=>onChangeFilter(f)}
+        key={filt}
+        onClick={()=>onChangeFilter(filt)}
         style={{
           marginRight: '10px',
-          color: filter === f ? 'blue' : 'black',
+          color: filter === filt ? 'blue' : 'black',
           cursor: 'pointer',
         }}
       >
-        {f === 'all' && `Всего: ${info.all}`}
-        {f === 'completed' && `Выполнено: ${info.completed}`}
-        {f === 'inWork' && `В работе: ${info.inWork}`}
+        {`${translatedTodoFilter[filt]} (${info[filt]})`}
       </p>
     )}
 
   </div>
-);
+); 
