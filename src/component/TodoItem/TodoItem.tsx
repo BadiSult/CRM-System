@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Todo, TodoRequest } from '../types';
 import styles from '../TodoItem/TodoItem.module.css';
+ import { toggleTodos } from '../../api/todosApi';
+ import { deleteTask } from '../../api/todosApi';
 interface TodoItemProps {
     todo: Todo
     onUpdate:()=>void
@@ -15,12 +17,9 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   const handleToggleTodoStatus = async ( ) =>{
      
     try{
-       const taskRequest:TodoRequest = {isDone: !todo.isDone}
-      await fetch( `https://easydev.club/api/v1/todos/${todo.id}`, {
-        method: 'PUT',
-        headers:{'Content-Type': 'application/json'},
-        body: JSON.stringify(taskRequest)
-      });
+       
+      await toggleTodos(todo) 
+
       onUpdate();
     }catch{
       onError('Error status');
@@ -30,9 +29,7 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   const handleDeleteTask = async( )=>{
 
     try{
-        await fetch(`https://easydev.club/api/v1/todos/${todo.id}`,{
-        method:'DELETE',
-      });
+         await deleteTask(todo)
 
       onUpdate();
     } catch{

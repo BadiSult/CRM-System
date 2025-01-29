@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { TodoRequest } from '../types';
+ 
 import styles from '../AddTodo/AddTodo.module.css';
+import {addTodo as addApi } from '../../api/todosApi' 
 interface AddTodoProps {
     onAddSuccess: () => void
     onError: (message: string) => void;
@@ -19,15 +20,10 @@ export const AddTodo:React.FC<AddTodoProps> = ({  onError, onAddSuccess }) => {
     }
 
     try{
-      const newTaskRequest:TodoRequest = {title:newTask}
-      await fetch('https://easydev.club/api/v1/todos',{
-        method:'POST',
-        headers:{'Content-Type' : 'application/json'},
-        body: JSON.stringify( newTaskRequest)
-      });
+       await addApi(newTask)
 
 
-     await onAddSuccess( );
+      await onAddSuccess( );
 
       setNewTask('');
 
