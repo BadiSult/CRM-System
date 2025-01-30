@@ -1,30 +1,20 @@
 import React from 'react';
 import { TodoInfo } from '../types';
 import styles from '../Filter/Filter.module.css';
+import { Radio } from 'antd';
 interface FilterProps {
     info: TodoInfo
-    filter: string
-    onChangeFilter: (filter: string) => void
+    filter: 'all' | 'completed' | 'inWork'
+    onChangeFilter: (filter: 'all' | 'completed' | 'inWork') => void
 }
-
-
+ 
 export const Filter: React.FC<FilterProps> = ({info, filter, onChangeFilter}) =>(
-  <div style={{display:'flex'}}>
-    {['all', 'completed', 'inWork'].map(f=>
-      <p className={styles.p}
-        key={f}
-        onClick={()=>onChangeFilter(f)}
-        style={{
-          marginRight: '10px',
-          color: filter === f ? 'blue' : 'black',
-          cursor: 'pointer',
-        }}
-      >
-        {f === 'all' && `Всего: ${info.all}`}
-        {f === 'completed' && `Выполнено: ${info.completed}`}
-        {f === 'inWork' && `В работе: ${info.inWork}`}
-      </p>
-    )}
+  
+   <Radio.Group className={styles.radio} value={filter} onChange={(e) => onChangeFilter(e.target.value)}>
+  <Radio value="all">Все: {info.all}</Radio>
+  <Radio value="completed">Выполненные: {info.completed}</Radio>
+  <Radio value="inWork">В работе: {info.inWork}</Radio>
+</Radio.Group>
 
-  </div>
-);
+   
+); 
