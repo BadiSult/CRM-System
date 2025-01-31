@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Todo, TodoRequest } from '../types';
 import styles from '../TodoItem/TodoItem.module.css';
  import { toggleTodos } from '../../api/todosApi';
@@ -25,7 +25,7 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
      
     try{
        
-      await toggleTodos(todo.id, todo) 
+      await toggleTodos(todo.id, todo.isDone) 
 
       onUpdate();
     }catch{
@@ -45,12 +45,16 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   };
 
   const handleStartEdit = () => {
+     
     setIsEditing(true);
   }
 
-const handleCanselEdit = () =>{
+const handleCanselEdit =  () =>{
+   setEditTitle(todo.title)
   setIsEditing(false);
+  form.resetFields();
 }
+ 
 
   const handleSaveTask = async()=>{
     const trimTask = editTitle.trim();
@@ -62,6 +66,8 @@ const handleCanselEdit = () =>{
      await saveTask(todo.id, trimTaskRequest)
 
       setIsEditing(false);
+      setEditTitle(trimTask)
+       
       onUpdate();
 
     }catch{
@@ -75,7 +81,7 @@ const handleCanselEdit = () =>{
         <Form form={form} layout="inline">
           <Form.Item
             name="title"
-            initialValue={editTitle}
+            initialValue={todo.title}
             rules={[
               { required: true, message: 'Введите название задачи!' },
               { min: 2, message: 'Название должно содержать минимум 2 символа!' },
