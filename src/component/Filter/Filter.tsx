@@ -1,10 +1,11 @@
 import React from 'react';
 import { TodoInfo } from '../types';
 import styles from '../Filter/Filter.module.css';
+import { FilterType } from '../types';
 interface FilterProps {
     info: TodoInfo
-    filter: 'all' | 'completed' | 'inWork'
-    onChangeFilter: (filter: 'all' | 'completed' | 'inWork') => void
+    filter: FilterType
+    onChangeFilter: (filter: FilterType) => void
 }
 const translatedTodoFilter = {
   all : 'все',

@@ -6,12 +6,13 @@ import { Filter } from '../component/Filter/Filter';
 import { TodoList } from '../component/TodoList/TodoList';
 import { TodoInfo,   Todo} from '../component/types';
 import { fetchTodos as apiFetchTodos } from '../api/todosApi';
+import { FilterType } from '../component/types';
 // Интерфейсы
 
 
 
 
-type FilterType = 'all' | 'completed' | 'inWork'
+ 
 
 
 
@@ -57,11 +58,7 @@ export const TodoListPage : React.FC = () => {
     fetchTodos();
   },[filter]);
 
-
-
-
-
-
+ 
   return (
     <div style={{marginLeft: '40%'}}  >
      <h1>Cписок Задач</h1>

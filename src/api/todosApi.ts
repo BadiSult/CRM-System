@@ -29,17 +29,17 @@ export const addTodo = async (title: string): Promise<void> => {
 };
 
  
-export const toggleTodos = async(todo:Todo):Promise<void> =>{
-  const taskRequest:TodoRequest = {isDone: !todo.isDone}
-  await fetch( `${API_BASE_URL}/${todo.id}`, {
+export const toggleTodos = async(id:number, isDone:boolean):Promise<void> =>{
+  const taskRequest:TodoRequest = {isDone: !isDone}
+  await fetch( `${API_BASE_URL}/${id}`, {
     method: 'PUT',
     headers:{'Content-Type': 'application/json'},
     body: JSON.stringify(taskRequest)
   });
 }
 
-export const deleteTask = async(todo:Todo):Promise<void>=>{
-  await fetch(`${API_BASE_URL}/${todo.id}`,{
+export const deleteTask = async(id:number):Promise<void>=>{
+  await fetch(`${API_BASE_URL}/${id}`,{
     method:'DELETE',
 })
 }

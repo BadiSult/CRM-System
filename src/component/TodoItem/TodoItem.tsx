@@ -18,7 +18,7 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
      
     try{
        
-      await toggleTodos(todo) 
+      await toggleTodos(todo.id, todo.isDone) 
 
       onUpdate();
     }catch{
@@ -29,7 +29,7 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   const handleDeleteTask = async( )=>{
 
     try{
-         await deleteTask(todo)
+         await deleteTask(todo.id)
 
       onUpdate();
     } catch{
