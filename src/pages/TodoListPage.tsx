@@ -69,9 +69,11 @@ const FilterRef = useRef(filter)
 
   useEffect(()=>{
     fetchTodos(FilterRef.current);
-    setInterval(()=>{
+    const interval = setInterval(()=>{
       fetchTodos(FilterRef.current);
     }, 5000)
+
+    return () => clearInterval(interval)
      
   },[filter]);
 
