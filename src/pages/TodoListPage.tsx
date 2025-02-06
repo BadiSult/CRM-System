@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
  
 import { AddTodo } from '../component/AddTodo/AddTodo';
@@ -31,10 +31,10 @@ export const TodoListPage : React.FC = () => {
 
 
 
+    
 
 
-
-  const fetchTodos = async(currentFilter: FilterType ) =>{
+  const fetchTodos =  useCallback(async(currentFilter: FilterType ) =>{
 
     setError('');
 
@@ -47,23 +47,28 @@ export const TodoListPage : React.FC = () => {
       setError('Error data');
 
     }
-  };
+  },[setTodos, setInfo]) ;
 
 
+  const memoTodos  = useMemo(() =>todos, [todos])
 
 const FilterRef = useRef(filter)
 
   
 
-  const changeFilter =  (newFilter: FilterType) => {
-    if(newFilter !== filter){
-      setFilter(newFilter)
-      localStorage.setItem('activeFilter', newFilter)
-      FilterRef.current = newFilter
-      fetchTodos(newFilter)
-    }
+  const changeFilter =   useCallback((newFilter: FilterType) => {
+    setFilter((prewFilter) => {
+      if(newFilter !== prewFilter){
+        setFilter(newFilter)
+        localStorage.setItem('activeFilter', newFilter)
+        FilterRef.current = newFilter
+        fetchTodos(newFilter)
+      }
+      return newFilter
+    })
     
-  };
+    
+  },[fetchTodos]) ;
 
   const handleError = (message: string) => setError(message);
 
@@ -75,7 +80,7 @@ const FilterRef = useRef(filter)
 
     return () => clearInterval(interval)
      
-  },[filter]);
+  },[fetchTodos]);
 
 
 
@@ -90,7 +95,7 @@ const FilterRef = useRef(filter)
 
       {error && <p style={{color:'red'}}>{error}</p>}
        <Filter info={info} filter={filter} onChangeFilter={changeFilter}/>
-      <TodoList onError={handleError} onUpdate={()=>fetchTodos(FilterRef.current)} todos={todos} />
+      <TodoList onError={handleError} onUpdate={()=>fetchTodos(FilterRef.current)} todos={memoTodos} />
     </div>
   );
 };
