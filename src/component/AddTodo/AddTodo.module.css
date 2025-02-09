@@ -7,13 +7,14 @@
     border-left: none;
     border-right: none;
     border-bottom: 1px solid #ccc;
+    max-width: 250px;
     
   }
 
   .button{
     height: 35px;
     width: 90px;
-    margin-left: 10px;
+    margin-right: 200px;
     background-color: rgb(155, 155, 252);
     border-radius: 10px;
     border: none;

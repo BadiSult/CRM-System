@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Todo, TodoRequest } from '../types';
 import styles from '../TodoItem/TodoItem.module.css';
  import { toggleTodos } from '../../api/todosApi';
- import { deleteTask } from '../../api/todosApi';
+ import {  deleteTask } from '../../api/todosApi';
+ import {  saveTask } from '../../api/todosApi';
+ import {Form, Input, Button,  Card, Space } from 'antd';
+ import { Typography } from 'antd';
+ import { EditOutlined, DeleteOutlined, CloseOutlined, SaveOutlined  } from '@ant-design/icons';
+
 interface TodoItemProps {
     todo: Todo
     onUpdate:()=>void
@@ -13,7 +18,9 @@ interface TodoItemProps {
 export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
+  const [form] = Form.useForm(); 
 
+  
   const handleToggleTodoStatus = async ( ) =>{
      
     try{
@@ -29,7 +36,7 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   const handleDeleteTask = async( )=>{
 
     try{
-         await deleteTask(todo.id)
+      await deleteTask(todo.id)
 
       onUpdate();
     } catch{
@@ -37,33 +44,30 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
     }
   };
 
-
-  const handleCanselEdit = async() =>{
-    setIsEditing(false)
-    setEditTitle(todo.title)
+  const handleStartEdit = () => {
+     
+    setIsEditing(true);
   }
 
-  const handleStartEdit = async() =>{
-    setIsEditing(true)
-  }
-
+const handleCanselEdit =  () =>{
+   setEditTitle(todo.title)
+  setIsEditing(false);
+  form.resetFields();
+}
+ 
 
   const handleSaveTask = async()=>{
     const trimTask = editTitle.trim();
-    if(trimTask.length  < 2 || trimTask.length  > 64){
-      onError('error valid');
-      return;
-    }
+     
 
     try{
+      await form.validateFields();
       const trimTaskRequest:TodoRequest = {title: trimTask}
-      await fetch(`https://easydev.club/api/v1/todos/${todo.id}`,{
-        method: 'PUT',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(trimTaskRequest)
-      });
+     await saveTask(todo.id, trimTaskRequest)
 
       setIsEditing(false);
+      setEditTitle(trimTask)
+       
       onUpdate();
 
     }catch{
@@ -72,44 +76,58 @@ export const TodoItem:React.FC<TodoItemProps> = ({todo, onUpdate, onError }) =>{
   };
 
   return (
-    <li>
+    <Card>
       {isEditing ? (
-        <div className={styles.edit}>
-          <input type="text"
-            value={editTitle}
-            onChange={(e)=> setEditTitle(e.target.value)}
-          />
-          <button onClick={handleSaveTask}>Save</button>
-          <button onClick={handleCanselEdit}>Cancel</button>
-        </div>
-      ) : (
-        <div   style={{ textDecoration: todo.isDone ? 'line-through' : 'none' }}>
+        <Form form={form} layout="inline">
+          <Form.Item
+            name="title"
+            initialValue={todo.title}
+            rules={[
+              { required: true, message: 'Введите название задачи!' },
+              { min: 2, message: 'Название должно содержать минимум 2 символа!' },
+              { max: 64, message: 'Название не может превышать 64 символа!' },
+            ]}
+          >
+            <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+          </Form.Item>
 
-          <div className={styles.title}>
-            <div className={styles.div1}>
-              <div>
-                <input className={styles.input}   type="checkbox" checked={todo.isDone} onChange={handleToggleTodoStatus} />
-              </div>
+          <Button icon={<SaveOutlined />} type="primary" onClick={handleSaveTask}>
+            Сохранить
+          </Button>
+          <Button icon={<CloseOutlined />} onClick={handleCanselEdit}>
+            Отмена
+          </Button>
+        </Form>
+      )  : (
+        <Space    >
 
-              <div className={styles.title1}>
-                {todo.title}
-              </div>
+          <Space className={styles.title}>
+            <Space className={styles.div1}>
+              <Space>
+                <Input className={styles.input}   type="checkbox" checked={todo.isDone} onChange={handleToggleTodoStatus} />
+              </Space>
 
-            </div>
+               
+              <Typography.Text ellipsis={{ tooltip: todo.title }} style={{ maxWidth: '180px', textDecoration: todo.isDone ? 'line-through' : 'none'  }} >
+                 {todo.title}
+              </Typography.Text>
+               
 
-            <div className={styles.div} >
-              <i style={{    }} className="fas fa-edit" onClick={handleStartEdit}></i>
-              <i  style={{marginLeft: '10px' }} className="fas fa-trash" onClick={handleDeleteTask}></i>
-            </div>
+            </Space>
 
-          </div>
+            <Space className={styles.div} >
+            <Button icon={<EditOutlined />} onClick={handleStartEdit} />
+            <Button icon={<DeleteOutlined />} danger onClick={handleDeleteTask} />
+            </Space>
 
-        </div>
+          </Space>
+
+        </Space>
 
       )}
 
 
-    </li>
+    </Card>
   );
 
 };
