@@ -10,15 +10,15 @@ const App: React.FC = () => {
     <Router>
       <nav>
         <ul>
-          <li><Link to="/">Список задач</Link></li>
-          <li><Link to="]">Профиль</Link></li>
+          <li><Link to="todo">Список задач</Link></li>
+          <li><Link to="profill">Профиль</Link></li>
            
         </ul>
       </nav>
       
        <Routes>
-       <Route path="/" element={<TodoListPage />} />
-       <Route path="]" element={< Profil />} />
+       <Route path="todo" element={<TodoListPage />} />
+       <Route path="profill" element={< Profil />} />
        </Routes>
          
          
