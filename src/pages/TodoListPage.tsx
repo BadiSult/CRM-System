@@ -107,7 +107,7 @@ const FilterRef = useRef(filter)
       {error && <p style={{color:'red'}}>{error}</p>}
        <Filter info={info} filter={filter} onChangeFilter={changeFilter}/>
       <TodoList onError={handleError} onUpdate={()=>fetchTodos(FilterRef.current)} todos={memoTodos} />
- 
+   
     </div>
   );
 };
