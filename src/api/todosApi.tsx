@@ -61,7 +61,7 @@ export const registerUser = async (userData: UserRegistration) => {
     return response.data;
   } catch (error: any) {
     console.error("Ошибка регистрации:", error.response?.data || error.message);
-    throw new Error(error.response?.data?.message || "Ошибка регистрации");
+     
   }
 };
 
