@@ -7,6 +7,7 @@ interface User {
   username: string;
   email: string;
   token?: string; // Сделать token необязательным
+  phone?:string
 }
 
 interface AuthContextType {
@@ -15,6 +16,7 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   error: string | null;
+   
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

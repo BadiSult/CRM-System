@@ -1,4 +1,4 @@
-import { Todo, TodoInfo, MetaResponse, TodoRequest, UserRegistration, AuthData  } from '../component/types';
+import { Todo, TodoInfo, MetaResponse,ProfileRequest, TodoRequest, UserRegistration, AuthData  } from '../component/types';
 import axios from 'axios';
  
 const API_BASE_URL = 'https://easydev.club/api/v1';
@@ -19,7 +19,7 @@ apiInstance.interceptors.response.use(
       console.warn("Токен истёк, пробуем обновить...");
 
       try {
-        const refreshToken = localStorage.getItem("refresh"); // Берем refresh-токен
+        const refreshToken = localStorage.getItem("refresh"); 
         if (!refreshToken) throw new Error("Отсутствует refresh-токен");
 
         const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {
@@ -30,14 +30,14 @@ apiInstance.interceptors.response.use(
         localStorage.setItem("access", access);
         localStorage.setItem("refresh", refresh);
 
-        // Повторяем исходный запрос с новым токеном
+         
         error.config.headers.Authorization = `Bearer ${access}`;
         return apiInstance(error.config);
       } catch (refreshError) {
         console.error("Ошибка обновления токена", refreshError);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location.href = "/login"; // Перенаправляем на страницу входа
+        window.location.href = "/login";  
         return Promise.reject(refreshError);
       }
     }
@@ -84,6 +84,17 @@ export const loginUser = async (authData: AuthData) => {
 };
 
 
+export const profileRequesting = async (data:ProfileRequest) =>{
+
+}
+
+
+
+
+// export const getProfile = async () => {
+//   const response = await apiInstance.get("/user/profile");
+//   return response.data;
+// };
 export const getProfile = async () => {
   const response = await apiInstance.get("/user/profile");
   return response.data;
@@ -92,6 +103,29 @@ export const getProfile = async () => {
 export const logoutUser = () => {
   setAuthToken(null);
 };
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

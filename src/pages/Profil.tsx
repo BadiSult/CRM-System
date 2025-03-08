@@ -1,3 +1,27 @@
-export const Profil:React.FC =() =>(
-    <h1 style={{marginLeft:'45%'}}>Привет</h1>
-)
+import {  useAuth } from '../component/AuthContext/AuthContext';
+
+
+
+
+export const Profil:React.FC =() =>{
+     const { user  } = useAuth();
+     
+     
+     console.log("Проверяем доступ, текущий user:", user);
+     
+     return(
+        <div>
+        <h1> Данные профиля</h1>
+         {user ?  <ul>
+        <li>{user.username}</li>
+        <li>{user.email}</li>
+        <li>{user.phone ? user.phone : "not phone"}</li>
+     </ul>
+     : <p>not date</p>
+         }
+        </div>
+         
+    )
+
+
+}

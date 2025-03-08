@@ -2,23 +2,22 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api/todosApi"; 
 import { UserRegistration } from "../component/types";  
-
+import { Link } from "react-router-dom";
 export const RegisterPage: React.FC = () => {
-  const navigate = useNavigate();
+   
   
    
   const [form, setForm] = useState<UserRegistration>({
     login: "",
     username: "",
     password: "",
-    confirmPassword:"",
     email: "",
     phoneNumber: "",
   });
 
   const [confirmPassword, setConfirmPassword] = useState("");  
   const [error, setError] = useState<string | null>(null);
-
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
    
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -54,12 +53,13 @@ export const RegisterPage: React.FC = () => {
    
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null)
+    setSuccessMessage(null)
     if (!validateForm()) return;
 
     try {
       await registerUser(form);
-      alert("Регистрация успешна!");
-      navigate("/login");
+       setSuccessMessage("перейти на страницу авторизации для входа в систему")
     } catch (err: any) {
       setError(err.message || "Ошибка регистрации.");
     }
@@ -67,10 +67,12 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div>
-      <h2>Регистрация</h2>
+      <h2 style={{fontSize:"36px"}}>Регистрация</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
       <input
+       style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",marginTop:"20px" }}
+
   type="text"
   name="username"
   placeholder="Имя пользователя"
@@ -79,6 +81,7 @@ export const RegisterPage: React.FC = () => {
   autoComplete="name"  
 />
 <input
+ style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",marginTop:"20px" }}
   type="text"
   name="login"
   placeholder="Логин"
@@ -87,6 +90,7 @@ export const RegisterPage: React.FC = () => {
   autoComplete="username"
 />
 <input
+ style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",marginTop:"20px" }}
   type="email"
   name="email"
   placeholder="Email"
@@ -95,6 +99,7 @@ export const RegisterPage: React.FC = () => {
   autoComplete="email"
 />
 <input
+ style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",marginTop:"20px" }}
   type="password"
   name="password"
   placeholder="Пароль"
@@ -103,14 +108,16 @@ export const RegisterPage: React.FC = () => {
   autoComplete="new-password"  
 />
 <input
+ style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",marginTop:"20px" }}
   type="password"
   name="confirmPassword"
   placeholder="Повторите пароль"
-  value={form.confirmPassword}
+  value={confirmPassword}
   onChange={handleChange}
   autoComplete="new-password"
 />
 <input
+ style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",marginTop:"20px" }}
   type="tel"
   name="phoneNumber"
   placeholder="Телефон"
@@ -118,8 +125,23 @@ export const RegisterPage: React.FC = () => {
   onChange={handleChange}
   autoComplete="tel"  
 />
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit"  style={{marginTop:"60px", width:"420px", height:"50px", backgroundColor:"#7F265B",color:"white", borderRadius: "7px", border: "0px solid #7F265B",transition: "all 0.3s ease",  }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "rgb(238, 148, 201)";
+          e.currentTarget.style.color = "white";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "#7F265B";
+          e.currentTarget.style.color = "white";
+        }}
+        >Зарегистрироваться</button>
       </form>
+      {successMessage && (
+        <div>
+          <p>{successMessage}</p>
+          <Link to="/login"> страница авторизации</Link>
+        </div>
+      )}
     </div>
   );
 };

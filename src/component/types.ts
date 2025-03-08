@@ -26,13 +26,22 @@ export  interface MetaResponse<T, N> {
 
  export type FilterType = 'all' | 'completed' | 'inWork'
 
- export interface UserRegistration { 
+
+
+
+
+
+
+
+
+
+ 
+export interface UserRegistration { 
   login: string; 
   username: string; 
   password: string; 
-  confirmPassword?: string;
   email: string; 
-  phoneNumber?: string; 
+  phoneNumber: string; 
 }
 
 export interface AuthData { 
