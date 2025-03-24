@@ -1,18 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { loginUser, getProfile, logoutUser, setAuthToken } from "../../api/todosApi";
+import tokenInstance, { loginUser, getProfile, logoutUser, setAuthToken } from "../../api/todosApi";
 import { apiInstance } from "../../api/todosApi";
+import { useNavigate } from 'react-router-dom';
+import { Profile, AuthData } from "../types";
 
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  token?: string; // Сделать token необязательным
-  phone?:string
-}
+ 
 
 interface AuthContextType {
-  user: User | null;
-  login: (login: string, password: string) => Promise<void>;
+  user: Profile | null;
+  login: (user:AuthData) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -22,75 +18,105 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  let accessToken = null
+  
+  const fetchUser = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+    setAuthToken(token);  
+
+    try {
+      const response = await getProfile();
+      const profile = response.data
+      setUser({
+        id: profile.id,
+        username: profile.username,
+        email: profile.email,
+         date: profile.date,
+         isAdmin: profile.isAdmin,
+         isBlocked: profile.isBlocked,
+         phoneNumber: profile.phoneNumber
+      });
+      console.log("✅ Пользователь загружен:", profile);
+    } catch (err) {
+      console.error("❌ Ошибка при получении профиля:", err);
+      setError("Ошибка при получении профиля. Попробуйте снова.");
+      logout();  
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
-      setAuthToken(token);  
-
-      try {
-        const profile = await getProfile();
-        setUser({
-          id: profile.id,
-          username: profile.username,
-          email: profile.email,
-          token,
-        });
-        console.log("✅ Пользователь загружен:", profile);
-      } catch (err) {
-        console.error("❌ Ошибка при получении профиля:", err);
-        setError("Ошибка при получении профиля. Попробуйте снова.");
-        logout();  
-      } finally {
-        setIsLoading(false);
-      }
-    };
+     
 
     fetchUser();
-  }, [setAuthToken]);
+  }, []);
 
-  const login = async (login: string, password: string) => {
+
+
+
+
+
+
+  const login = async ( userDatas: AuthData) => {
     try {
-      const response = await loginUser({ login, password });
-      console.log("Ответ от сервера:", response);
+      const response = await loginUser(userDatas);
+      console.log("Ответ от сервера 1:", response);
       if (!response || !response.accessToken) {
         throw new Error("Некорректный ответ от сервера");
       }
-      localStorage.setItem("accessToken", response.accessToken);
-      localStorage.setItem("refreshToken", response.refreshToken);
+      tokenInstance.setToken(response.accessToken);
+      tokenInstance.setRefreshToken(response.refreshToken);
+      console.log("time token", response.accessToken.exp);
+      
+      apiInstance.defaults.headers.Authorization = `Bearer ${response.accessToken}`;
+       
 
-      const profileResponse = await apiInstance.get("/user/profile", {
-        headers: { Authorization: `Bearer ${response.accessToken}` },
-      });
+      const profileResponse = await getProfile()
 
       const userData = profileResponse.data;
 
       setUser({
-        id: userData.id,
-        username: userData.username,
+        date:userData.date,
         email: userData.email,
-        token: response.accessToken,
+        id: userData.id,
+        isAdmin: userData.isAdmin,
+        isBlocked:userData.isBlocked,
+        phoneNumber:userData.phoneNumber,
+        username: userData.username,
+
       });
 
       console.log("✅ Пользователь сохранён:", {
         id: userData.id,
         username: userData.username,
         email: userData.email,
-        token: response.accessToken,
+        isAdmin: userData.isAdmin,
+        isBlocked:userData.isBlocked,
+        date:userData.date,
+        phoneNumber:userData.phoneNumber
       });
     } catch (err) {
       setError("Ошибка при входе. Проверьте свои данные.");
       throw err;
     }
   };
+
+
+
+
+
+
+
 
   const logout = () => {
     logoutUser();

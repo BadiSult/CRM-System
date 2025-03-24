@@ -1,13 +1,13 @@
+import axios from 'axios';
+import tokenInstance, { apiInstance, getProfile, isTokenExpired } from '../api/todosApi';
 import {  useAuth } from '../component/AuthContext/AuthContext';
-
-
-
+import jwt_decode from "jwt-decode";
+ 
 
 export const Profil:React.FC =() =>{
-     const { user  } = useAuth();
-     
-     
-     console.log("Проверяем доступ, текущий user:", user);
+     const { user, logout  } = useAuth();
+
+  
      
      return(
         <div>
@@ -15,10 +15,12 @@ export const Profil:React.FC =() =>{
          {user ?  <ul>
         <li>{user.username}</li>
         <li>{user.email}</li>
-        <li>{user.phone ? user.phone : "not phone"}</li>
+        <li>{user.phoneNumber || "not phone"}</li>
      </ul>
      : <p>not date</p>
          }
+          
+          
         </div>
          
     )

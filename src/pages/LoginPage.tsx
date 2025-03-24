@@ -1,11 +1,27 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useAuth } from "../component/AuthContext/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import header from "../assets/header.png"
+import { AuthData } from "../component/types";
+
+
+
+
+ 
+
+
 export const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ login: "", password: "" });
+
+   
+    
+    localStorage.setItem("login",form.login)
+    localStorage.setItem("password",form.password)
+
+   
+   
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -13,30 +29,30 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (!form.login || !form.password) {
       alert("Заполните все поля!");
       return;
     }
-    console.log("Отправляемые данные:", {
-      login: form.login,
-      password: form.password,
-    });
+  
+    console.log("📤 Отправляемые данные:", { login: form.login, password: form.password });
   
     try {
+      const userData:AuthData = {login:form.login, password:form.password}
+      await login(userData);
       
-      await login(form.login, form.password);
-      
-      console.log("✅ Успешный вход:");
-  
+      console.log("✅ Успешный вход!");
       navigate("/todo");  
     } catch (error: any) {
-      console.error("❌ Ошибка входа:", error.response?.data || error.message);
-      
+      console.error("❌ Ошибка входа:", error);
+  
       if (error.response) {
-        console.log("Ответ от сервера:", error.response);
+        console.log("📡 Ответ от сервера:", error.response.data);
+      } else {
+        console.log("🚨 Ошибка сети или сервер недоступен");
       }
-
-      
+  
+      alert(error.response?.data?.message || "Ошибка авторизации. Проверьте данные!");
     }
   };
   return (
@@ -102,3 +118,5 @@ export const LoginPage = () => {
     
   );
 };
+
+ 

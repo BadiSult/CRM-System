@@ -1,59 +1,167 @@
-import { Todo, TodoInfo, MetaResponse,ProfileRequest, TodoRequest, UserRegistration, AuthData  } from '../component/types';
+import { Todo, TodoInfo, MetaResponse,ProfileRequest, TodoRequest, UserRegistration, AuthData, Profile  } from '../component/types';
 import axios from 'axios';
- 
+import {jwtDecode} from "jwt-decode";
+import { useNavigate } from 'react-router-dom';
 const API_BASE_URL = 'https://easydev.club/api/v1';
+
+
+
+
+class TokenService {
+    accessToken: string | null; 
+    refreshToken: string | null;
+
+  constructor() {
+    this.refreshToken = localStorage.getItem("refreshToken") || null;
+    this.accessToken = localStorage.getItem("accessToken") || null;
+  }
+
+   
+  getToken() {
+  return this.accessToken || localStorage.getItem("accessToken");
+}
+
+   
+  setToken(token:string) {
+    this.accessToken = token;
+    localStorage.setItem("accessToken", token);
+    apiInstance.defaults.headers.Authorization = `Bearer ${token}`;
+  }
+  
+  setTokens(accessToken: string, refreshToken: string) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    apiInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
+  }
+     
+    getRefreshToken(): string | null {
+      return this.refreshToken;
+    }
+
+      
+  setRefreshToken(token: string): void {
+    this.refreshToken = token;
+    localStorage.setItem("refreshToken", token);
+  }
+
+   
+  clearToken() {
+    this.accessToken = null;
+    this.refreshToken = null;
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    delete apiInstance.defaults.headers.Authorization;
+  }
+}
+
+ 
+const tokenInstance = new TokenService();
+export default tokenInstance;
+
+
+
+
+
+
+
+
 
  
 export const apiInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    Authorization: tokenInstance.getToken() ? `Bearer ${tokenInstance.getToken()}` : undefined
   },
 });
 
+ 
+apiInstance.interceptors.request.use(
+  async (config) => {
+    const accessToken = tokenInstance.getToken();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+
 
 apiInstance.interceptors.response.use(
-  (response) => response,
+  (response) => response, 
   async (error) => {
     if (error.response?.status === 401) {
-      console.warn("Токен истёк, пробуем обновить...");
+       
+      console.warn("⏳ Токен истёк, пробуем обновить...");
 
       try {
-        const refreshToken = localStorage.getItem("refresh"); 
-        if (!refreshToken) throw new Error("Отсутствует refresh-токен");
-
-        const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refreshToken,
-        });
-
-        const { access, refresh } = refreshResponse.data;
-        localStorage.setItem("access", access);
-        localStorage.setItem("refresh", refresh);
+        const refreshToken =   tokenInstance.getRefreshToken();
+        if (!refreshToken) {
+          console.error("⛔ Нет refresh-токена, разлогиниваем...");
+          tokenInstance.clearToken();
+          window.location.href = "/login"; 
+          return Promise.reject(error);
+        }
 
          
-        error.config.headers.Authorization = `Bearer ${access}`;
-        return apiInstance(error.config);
+        const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+
+        const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
+        console.log("🔄 Новый токен:", accessToken);
+
+         
+        tokenInstance.setToken(accessToken);
+        tokenInstance.setRefreshToken(newRefreshToken);
+
+
+        apiInstance.defaults.headers.Authorization = `Bearer ${accessToken}`; 
+         
+        const newRequestConfig ={
+          ...error.config,
+          headers:{
+            ...error.config.headers,
+            Authorization: `Bearer ${tokenInstance.getToken()}`,
+          }
+         }
+
+        return apiInstance(newRequestConfig);  
       } catch (refreshError) {
-        console.error("Ошибка обновления токена", refreshError);
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+        console.error("❌ Ошибка обновления токена", refreshError);
+        tokenInstance.clearToken();
         window.location.href = "/login";  
         return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );
 
+
+
+
+
+
+
+
+
+
+
+
 export const setAuthToken = (token: string | null) => {
   if (token) {
-    apiInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    localStorage.setItem("accessToken", token);
+    tokenInstance.setToken(token);
   } else {
-    delete apiInstance.defaults.headers.common["Authorization"];
-    localStorage.removeItem("accessToken");
+    tokenInstance.clearToken();
   }
 };
+
+
+
 
 export const registerUser = async (userData: UserRegistration) => {
   try {
@@ -70,34 +178,45 @@ export const loginUser = async (authData: AuthData) => {
      
     const { login, password } = authData;
 
-    
-    const response = await apiInstance.post("/auth/signin", { login, password });
-
     console.log("📤 Запрос отправлен:", { login, password });
-    console.log("📥 Получен ответ:", response.data);
+    const response = await apiInstance.post("/auth/signin", { login, password },);
 
-    return response.data;  
+    const Token = response.data 
+
+     
+    console.log("📥 Получен ответ:",Token);
+
+    return Token;  
   } catch (error: any) {
     console.error("Ошибка авторизации:", error.response?.data || error.message);
     throw error;
   }
 };
 
-
-export const profileRequesting = async (data:ProfileRequest) =>{
-
-}
-
-
-
-
-// export const getProfile = async () => {
-//   const response = await apiInstance.get("/user/profile");
-//   return response.data;
-// };
+export const isTokenExpired = (token: string | null): boolean => {
+  if (!token) return true;
+  try {
+    const { exp } = jwtDecode<{ exp: number }>(token);
+    return Date.now() >= exp * 1000;
+  } catch (error) {
+    return true;
+  }
+};
+ 
 export const getProfile = async () => {
-  const response = await apiInstance.get("/user/profile");
-  return response.data;
+  console.log("📡 Отправка запроса на сервер...");
+  console.log("🔍 Заголовки:", apiInstance.defaults.headers);
+   
+  
+  try {
+    const response  = await apiInstance.get("/user/profile");
+     
+    console.log("✅ Ответ от сервера:", response);
+    return response;
+  } catch (error) {
+    console.error("❌ Ошибка при получении профиля:", error);
+    throw error;
+  }
 };
 
 export const logoutUser = () => {

@@ -22,6 +22,9 @@ export const RegisterPage: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+  };
 
    
   const validateForm = () => {
@@ -113,7 +116,7 @@ export const RegisterPage: React.FC = () => {
   name="confirmPassword"
   placeholder="Повторите пароль"
   value={confirmPassword}
-  onChange={handleChange}
+  onChange={handleConfirmPasswordChange}
   autoComplete="new-password"
 />
 <input
