@@ -1,122 +1,86 @@
-import { useContext, useState } from "react";
-import { useAuth } from "../component/AuthContext/AuthContext";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import header from "../assets/header.png"
-import { AuthData } from "../component/types";
-
-
-
-
+import header from "../assets/header.png";
  
 
+import { Form, Input, Button, Typography } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/store";
+import { login } from "../store/authSlice";
+
+const { Title, Text } = Typography;
 
 export const LoginPage = () => {
-  const { login } = useAuth();
+  
+  const [form] = Form.useForm();   
+
+  
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ login: "", password: "" });
 
-   
-    
-    localStorage.setItem("login",form.login)
-    localStorage.setItem("password",form.password)
+  const { isAuth } = useSelector((state: RootState) => state.auth);
 
-   
-   
+  useEffect(() => {
+    if (isAuth) navigate("/todo");  
+  }, [isAuth]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleSubmit = async (values: { login: string; password: string }) => {
+    await dispatch(login(values));
   };
+   
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    if (!form.login || !form.password) {
-      alert("Заполните все поля!");
-      return;
-    }
-  
-    console.log("📤 Отправляемые данные:", { login: form.login, password: form.password });
-  
-    try {
-      const userData:AuthData = {login:form.login, password:form.password}
-      await login(userData);
-      
-      console.log("✅ Успешный вход!");
-      navigate("/todo");  
-    } catch (error: any) {
-      console.error("❌ Ошибка входа:", error);
-  
-      if (error.response) {
-        console.log("📡 Ответ от сервера:", error.response.data);
-      } else {
-        console.log("🚨 Ошибка сети или сервер недоступен");
-      }
-  
-      alert(error.response?.data?.message || "Ошибка авторизации. Проверьте данные!");
-    }
-  };
   return (
-    <div style={{marginBottom:"200px"}} >
-      <img src={header} style={{width:"72px", height:"72px", marginBottom:"35px"}} alt="" />
-
-      <div  style={{width:"420px", height:"376px", alignContent:"center"}}>
-
-      <div style={{marginLeft:"25px"}}>
-        <div style={{fontSize:"36px"}}>
-        Login to your Account
-        </div>
-        <div style={{fontSize:"16px", marginTop:"5px"}}>
-       See what is going on with your business
-          </div> 
-      </div>
-
-      <div style={{marginTop:"35px"}}>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <p style={{marginBottom:"5px", fontSize:"12px", }}>Login</p>
-        <input
-      style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px",}}
-       type="text"
-       name="login"
-       placeholder="  Логин"
-       value={form.login}
-       onChange={handleChange}
-      autoComplete="username"  
+    <div style={{ marginBottom: "200px", textAlign: "center" }}>
+      <img
+        src={header}
+        style={{ width: "72px", height: "72px", marginBottom: "35px" }}
+        alt="Logo"
       />
-        </div>
-      
-      <div style={{marginTop:"25px"}}>
-        <p style={{marginBottom:"5px", fontSize:"12px"}}>Password</p>
-      <input
-      style={{width:"420px", height:"45px",border: "1px solid #DED2D9", borderRadius: "7px", }}
-        type="password"
-        name="password"
-        placeholder="  Пароль"
-       value={form.password}
-       onChange={handleChange}
-       autoComplete="current-password"  
-      />
+
+      <div style={{ width: "420px", margin: "0 auto", textAlign: "left" }}>
+        <Title level={2}>Login to your Account</Title>
+        <Text type="secondary">See what is going on with your business</Text>
+
+        <Form
+          form={form}  
+          layout="vertical"
+          onFinish={handleSubmit}  
+          style={{ marginTop: "35px" }}
+        >
+          <Form.Item 
+            label="Login" 
+            name="login"  
+            rules={[{ required: true, message: "Please enter your login!" }]}
+          > 
+            <Input placeholder="Логин" />
+          </Form.Item>
+
+          <Form.Item 
+            label="Password" 
+            name="password"  
+            rules={[{ required: true, message: "Please enter your password!" }]}
+          > 
+            <Input.Password placeholder="Пароль" />
+          </Form.Item>
+
+          <Form.Item>
+            <Button 
+              type="primary"
+              htmlType="submit"
+              block  
+              style={{ backgroundColor: "#7F265B", borderColor: "#7F265B" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgb(238, 148, 201)")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#7F265B")}
+            >
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <Text style={{ marginTop: "20px", display: "block", textAlign: "center" }}>
+          Not Registered Yet? <Link to="/register" style={{ color: "#7F265B" }}>Create an account</Link>
+        </Text>
       </div>
-      
-      <button  style={{marginTop:"60px", width:"420px", height:"50px", backgroundColor:"#7F265B",color:"white", borderRadius: "7px", border: "0px solid #7F265B",transition: "all 0.3s ease",  }} type="submit"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = "rgb(238, 148, 201)";
-        e.currentTarget.style.color = "white";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = "#7F265B";
-        e.currentTarget.style.color = "white";
-      }}
-      >Login</button>
-       <div style={{marginTop:"305px", marginLeft:"70px", color:"#828282"}}>Not Registered Yet?<Link style={{color:"#7F265B", fontSize:"18px"}} to="/register"> Create san account</Link></div> 
-    </form>
-      </div>
-       
-      </div>
-       
     </div>
-    
   );
 };
-
- 

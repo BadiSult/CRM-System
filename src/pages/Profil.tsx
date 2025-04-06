@@ -1,13 +1,15 @@
-import axios from 'axios';
-import tokenInstance, { apiInstance, getProfile, isTokenExpired } from '../api/todosApi';
-import {  useAuth } from '../component/AuthContext/AuthContext';
-import jwt_decode from "jwt-decode";
+  
+import {  useSelector } from 'react-redux';
+ 
+import {   RootState } from '../store/store';
+ 
  
 
 export const Profil:React.FC =() =>{
-     const { user, logout  } = useAuth();
+      
 
-  
+     
+     const { user } = useSelector((state: RootState) => state.auth);
      
      return(
         <div>

@@ -1,7 +1,8 @@
-import { Todo, TodoInfo, MetaResponse,ProfileRequest, TodoRequest, UserRegistration, AuthData, Profile  } from '../component/types';
+import { Todo, TodoInfo, MetaResponse,TodoRequest    } from '../component/types';
 import axios from 'axios';
 import {jwtDecode} from "jwt-decode";
-import { useNavigate } from 'react-router-dom';
+ 
+import { AuthData, UserRegistration } from '../component/typesAut';
 const API_BASE_URL = 'https://easydev.club/api/v1';
 
 
