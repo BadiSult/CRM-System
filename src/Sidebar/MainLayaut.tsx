@@ -9,7 +9,9 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
-import { logout } from "../store/authSlice";
+import { fetchProfile, logout } from "../store/authSlice";
+import { useEffect } from "react";
+import { setAuthToken } from "../api/todosApi";
 
 
 
@@ -42,6 +44,14 @@ import { logout } from "../store/authSlice";
   
 };
 export const MainLayaut: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setAuthToken(token);  
+      dispatch(fetchProfile());
+    }
+  }, []);
     return(
       <BrowserRouter>
            
@@ -74,3 +84,5 @@ export const MainLayaut: React.FC = () => {
     )
     
 }
+
+ 

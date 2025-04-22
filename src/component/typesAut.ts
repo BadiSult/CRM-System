@@ -25,11 +25,7 @@ export interface UserRegistration {
     phoneNumber: string; 
   }
   
-  export interface ProfileRequest { 
-    username: string; 
-    email: string; 
-    phoneNumber: string; 
-  }
+  export type ProfileRequest = Pick<Profile, 'username' | 'email' | 'phoneNumber'>;
   
   export interface PasswordRequest { 
     password: string; 
