@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser,  getProfile, logoutUser, setAuthToken } from "../api/todosApi"; 
+import tokenInstance, { loginUser,  getProfile, logoutUser } from "../api/todosApi"; 
 import { Profile, AuthData } from "../component/typesAut";  
 
  
@@ -30,7 +30,7 @@ const initialState: AuthState = {
     }
     localStorage.setItem("accessToken", response.accessToken)
     localStorage.setItem("refreshToken", response.refreshToken)
-    setAuthToken(response.accessToken)
+    tokenInstance.setToken(response.accessToken)
 
     const profileResponse = await getProfile()
     return profileResponse.data

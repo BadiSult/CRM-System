@@ -153,13 +153,7 @@ apiInstance.interceptors.response.use(
 
 
 
-export const setAuthToken = (token: string | null) => {
-  if (token) {
-    tokenInstance.setToken(token);
-  } else {
-    tokenInstance.clearToken();
-  }
-};
+ 
 
 
 
@@ -221,7 +215,7 @@ export const getProfile = async () => {
 };
 
 export const logoutUser = () => {
-  setAuthToken(null);
+  tokenInstance.clearToken();
 };
 
 
