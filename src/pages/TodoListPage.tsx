@@ -98,6 +98,7 @@ const FilterRef = useRef(filter)
 
  
   return (
+    
     <div style={{marginLeft: '40%'}}  >
      <h1>Cписок Задач</h1>
 
@@ -107,7 +108,7 @@ const FilterRef = useRef(filter)
       {error && <p style={{color:'red'}}>{error}</p>}
        <Filter info={info} filter={filter} onChangeFilter={changeFilter}/>
       <TodoList onError={handleError} onUpdate={()=>fetchTodos(FilterRef.current)} todos={memoTodos} />
- 
+   
     </div>
   );
 };

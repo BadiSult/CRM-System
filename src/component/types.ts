@@ -25,3 +25,15 @@ export  interface MetaResponse<T, N> {
   }
 
  export type FilterType = 'all' | 'completed' | 'inWork'
+
+
+
+
+
+
+
+
+
+
+ 
+ 

@@ -28,7 +28,7 @@ export const AddTodo: React.FC<AddTodoProps> = ({ onError, onAddSuccess }) => {
   };
 
   return (
-    <Form form={form} onFinish={handleAddTask} style={{ display: 'flex', justifyContent: 'space-between' }}>
+    <Form form={form} onFinish={handleAddTask} style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '325px' }}>
        
       <Form.Item style={{ flex: 1 }}
        name="task"
